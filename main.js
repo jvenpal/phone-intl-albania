@@ -203,7 +203,7 @@ const customLabelsByIso2 = {
           e.stopPropagation();
 
           tjeraMode = true;
-          applytjeraFlagUI();
+          applyTjeraFlagUI();
         });
 
         list.appendChild(tjeraItem);
