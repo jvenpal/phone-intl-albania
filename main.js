@@ -1,7 +1,6 @@
 (function () {
   document.addEventListener("DOMContentLoaded", function () {
     const input = document.querySelector("#Telefonnummer-3");
-
     if (!input) {
       return;
     }
@@ -17,11 +16,12 @@
       ? form.querySelector('input[type="submit"], button[type="submit"]')
       : null;
 
-    // flag for special "Tjera" mode
+    // flag for special "tjera" mode
     let tjeraMode = false;
 
     // countries we allow, in order
     const allowedCountries = [
+      "al", // Albania
       "de", // Germany
       "rs", // Serbia
       "hr", // Croatia
@@ -30,61 +30,60 @@
       "me", // Montenegro
       "mk", // North Macedonia
       "si", // Slovenia
-      "al", // Albania
       "at", // Austria
     ];
 
-  // translations for intl-tel-input country names
-const i18n = {
-  "Germany": "Gjermania",
-  "Serbia": "Serbia",
-  "Croatia": "Kroacia",
-  "Bosnia and Herzegovina": "Bosnja dhe Hercegovina",
-  "Kosovo": "Kosova",
-  "Montenegro": "Mali i Zi",
-  "North Macedonia": "Maqedonia",
-  "Slovenia": "Sllovenia",
-  "Albania": "Shqipëria",
-  "Austria": "Austri",
-};
+    // translations for intl-tel-input country names (Albanian)
+    const i18n = {
+      Germany: "Gjermania",
+      Serbia: "Serbia",
+      Croatia: "Kroacia",
+      "Bosnia and Herzegovina": "Bosnja dhe Hercegovina",
+      Kosovo: "Kosova",
+      Montenegro: "Mali i Zi",
+      "North Macedonia": "Maqedonia",
+      Slovenia: "Sllovenia",
+      Albania: "Shqipëria",
+      Austria: "Austri",
+    };
 
-// custom dropdown labels for UI
-const customLabelsByIso2 = {
-  "de": "Gjermania +49",
-  "rs": "Serbia +381",
-  "hr": "Kroacia +385",
-  "ba": "Bosnja dhe Hercegovina +387",
-  "xk": "Kosova +383",
-  "me": "Mali i Zi +382",
-  "mk": "Maqedonia +389",
-  "si": "Sllovenia +386",
-  "al": "Shqipëria +355",
-  "at": "Austri +43",
-};
-
+    // custom dropdown labels for UI (Albanian)
+    const customLabelsByIso2 = {
+      ba: "Bosnja dhe Hercegovina +387",
+      rs: "Serbia +381",
+      me: "Mali i Zi +382",
+      xk: "Kosova +383",
+      hr: "Kroacia +385",
+      si: "Sllovenia +386",
+      mk: "Maqedonia +389",
+      al: "Shqipëria +355",
+      de: "Gjermania +49",
+      at: "Austri +43",
+    };
 
     // init intl-tel-input using global UMD API
     const iti = window.intlTelInput(input, {
-      initialCountry: "al",
+      initialCountry: "al", // default: Albania
       onlyCountries: allowedCountries,
       i18n: i18n,
       separateDialCode: false,
-      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js"
+      utilsScript:
+        "https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js",
     });
 
     // helper: get the selected flag wrapper + inner flag span
     function getFlagEls() {
       const wrapper = input.closest(".iti");
       if (!wrapper) return {};
+
       const flagWrapper = wrapper.querySelector(
         ".iti__selected-flag, .iti__selected-country"
       );
       if (!flagWrapper) return {};
+
       const flagIcon = flagWrapper.querySelector(".iti__flag");
-      return {
-        wrapper: flagWrapper,
-        icon: flagIcon
-      };
+
+      return { wrapper: flagWrapper, icon: flagIcon };
     }
 
     // restore normal intl-tel-input visuals (when leaving tjera)
@@ -111,14 +110,14 @@ const customLabelsByIso2 = {
         els.icon.style.minWidth = "";
         els.icon.style.height = "";
         els.icon.style.color = "";
-        els.icon.textContent = ""; 
+        els.icon.textContent = "";
       }
 
       els.wrapper.removeAttribute("title");
       els.wrapper.removeAttribute("aria-label");
     }
 
-    // apply Tjera visuals inline: hide flag & shadow, nothing else
+    // apply "Tjera" visuals inline: hide flag & shadow, nothing else
     function applyTjeraFlagUI() {
       const els = getFlagEls();
       if (!els.wrapper) return;
@@ -128,9 +127,8 @@ const customLabelsByIso2 = {
         dialNode.textContent = "";
       }
 
-      els.wrapper.setAttribute("title", "tjera");
+      els.wrapper.setAttribute("title", "Tjera");
       els.wrapper.setAttribute("aria-label", "Tjera");
-
       els.wrapper.style.boxShadow = "none";
       els.wrapper.style.backgroundImage = "none";
 
@@ -183,25 +181,23 @@ const customLabelsByIso2 = {
       });
 
       // 2. Inject "Tjera" entry if not already there
-      if (!list.querySelector('.iti__country[data-country-code="tj"]')) {
+      if (!list.querySelector('.iti__country[data-country-code="dr"]')) {
         const tjeraItem = document.createElement("li");
         tjeraItem.className = "iti__country iti__standard";
-        tjeraItem.setAttribute("data-country-code", "tj");
+        tjeraItem.setAttribute("data-country-code", "dr");
         tjeraItem.setAttribute("data-dial-code", "");
-
         tjeraItem.innerHTML = [
           '<div class="iti__flag-box">',
-          '  <span class="iti__flag iti__tj"></span>',
+          ' <span class="iti__flag iti__dr"></span>',
           "</div>",
           '<span class="iti__country-name">Tjera</span>',
-          '<span class="iti__dial-code"></span>'
+          '<span class="iti__dial-code"></span>',
         ].join("");
 
-        // Click handler: when user picks drugo
+        // Click handler: when user picks "Tjera"
         tjeraItem.addEventListener("click", function (e) {
           e.preventDefault();
           e.stopPropagation();
-
           tjeraMode = true;
           applyTjeraFlagUI();
         });
@@ -210,13 +206,14 @@ const customLabelsByIso2 = {
       }
     }
 
-    // run once initially so dropdown is localized + tjera injected
+    // run once initially so dropdown is localized + Tjera injected
     relabelDropdown();
 
     // run again whenever dropdown opens (DOM is rebuilt)
     const selectedFlagWrapper = document.querySelector(
       ".iti__selected-flag, .iti__selected-country"
     );
+
     if (selectedFlagWrapper) {
       selectedFlagWrapper.addEventListener("click", function () {
         setTimeout(relabelDropdown, 0);
@@ -247,7 +244,6 @@ const customLabelsByIso2 = {
         if (cleanedRaw.startsWith(zeroZeroDial)) {
           cleanedRaw = "+" + cleanedRaw.slice(2);
         }
-
         return cleanedRaw;
       }
 
@@ -265,14 +261,14 @@ const customLabelsByIso2 = {
 
     // Decide final phone value we want to actually submit
     function getFinalSubmitValue() {
-      // tjera mode: do NOT touch the number at all
+      // Tjera mode: do NOT touch the number at all
       if (tjeraMode) {
         return input.value || "";
       }
 
       // Otherwise try intl-tel-input formatter
       try {
-        const intlVal = iti.getNumber(); // expected "+49..."
+        const intlVal = iti.getNumber(); // expected "+355..." etc.
         if (intlVal && intlVal.trim() !== "") {
           return intlVal;
         }
@@ -302,6 +298,7 @@ const customLabelsByIso2 = {
         normalizeBeforeSubmit();
       });
     }
+
     if (form) {
       form.addEventListener("submit", function () {
         normalizeBeforeSubmit();
@@ -309,4 +306,3 @@ const customLabelsByIso2 = {
     }
   });
 })();
-
