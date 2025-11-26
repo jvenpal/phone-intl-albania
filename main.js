@@ -65,7 +65,7 @@ const customLabelsByIso2 = {
 
     // init intl-tel-input using global UMD API
     const iti = window.intlTelInput(input, {
-      initialCountry: "de",
+      initialCountry: "al",
       onlyCountries: allowedCountries,
       i18n: i18n,
       separateDialCode: false,
